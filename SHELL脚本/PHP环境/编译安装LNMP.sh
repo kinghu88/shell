@@ -353,7 +353,7 @@ for i in `seq -w 5 -1 1`
    done
 echo
 printf "%1s \033[1;32m Mysql start installing... \033[0m \n"
-yum -y install  ncurses-devel libxml2-devel libxml libtool-ltdl-devel gcc-c++ autoconf automake bison zlib-devel
+yum -y install  ncurses-devel libxml2-devel libxml2 libtool-ltdl-devel gcc-c++ autoconf automake bison zlib-devel
 cd /app
 #wget http://dev.mysql.com/get/Wownload/MySQL-.6/$MYSQL.tar.gz
 groupadd mysql
