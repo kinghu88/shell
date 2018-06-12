@@ -261,12 +261,22 @@ groupadd www
 useradd -r -s /sbin/nologin -g www www
 yum -y install pcre pcre-devel openssl openssl-devel gd gd-devel perl perl-ExtUtils-Embed
 cd /app
-tar -xzf $Ngx_path.tar.gz -C /usr/local/
+#tar -xzf $Ngx_path.tar.gz -C /usr/local/
 #wget http://nginx.org/download/${NGINX}.tar.gz  
 tar -xzf ${NGINX}.tar.gz -C /usr/src/
 cd /usr/src/${NGINX}/
-#./configure --prefix=/usr/local/nginx  --user=www --group=www --with-http_gzip_static_module --with-http_stub_status_module --with-google_perftools_module --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_dav_module --with-http_perl_module    
-./configure --prefix=/usr/local/nginx --add-module=/usr/local/$Ngx_path --user=www --group=www --with-http_gzip_static_module --with-http_stub_status_module  --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_dav_module --with-http_perl_module --with-http_flv_module
+./configure --prefix=/usr/local/nginx  \
+--user=www --group=www \
+--with-http_gzip_static_module \
+--with-http_stub_status_module \
+--with-http_ssl_module \
+--with-http_realip_module \
+--with-http_addition_module \
+--with-http_dav_module \
+--with-http_perl_module \
+--with-http_flv_module \
+--with-stream \
+--with-stream_ssl_module
 make && make install
 if [ $? != 0 ]
 then
@@ -281,7 +291,7 @@ chmod 0777 /tmp/tcmalloc
 mv /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf.bak
 cat > /usr/local/nginx/conf/nginx.conf <<-"EOF"
 user  www www; 
-worker_processes  2; 
+worker_processes  auto; 
 worker_rlimit_nofile 65535;  
 error_log  logs/error.log  notice;
 pid        logs/nginx.pid;
