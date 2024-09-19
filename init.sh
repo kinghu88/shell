@@ -14,6 +14,7 @@ function msg() {
     echo -e "\\033[\[\\033[1;32m  $1  \\033[0;39m]\r"
     return 0
 }
+
 function config() {
     local -r MYFLY_ZSH='eval $(mcfly init zsh)'
     local -r JUMP_ZSH="source /usr/share/autojump/autojump.zsh"
@@ -28,11 +29,9 @@ function config() {
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/kinghu88/zsh/refs/heads/main/install.sh)"
         if_success $? "安装Oh My Zsh失败"
     fi
-    
-    # 使用临时文件构建.zshrc的新内容
     msg "将进行~/.zshrc配置..."
     temp_zshrc=$(mktemp)
-    cp -rf ~/.zshrc  "$temp_zshrc"  # 复制现有内容
+    cp -rf ~/.zshrc  "$temp_zshrc"
     # 追加或更新配置（仅当它们不存在时）
     grep -qF  "${MYFLY_ZSH}" "$temp_zshrc" || echo "${MYFLY_ZSH}" >> "$temp_zshrc"
     grep -qF  "${JUMP_ZSH}" "$temp_zshrc" || echo "${JUMP_ZSH}" >> "$temp_zshrc"
@@ -44,20 +43,16 @@ function config() {
     # 如果.zshrc的内容发生了变化，则替换它
     if ! cmp -s ~/.zshrc "$temp_zshrc"; then
         mv "$temp_zshrc" ~/.zshrc
-        zsh
-        source ~/.zshrc
-        #
+        zsh && source ~/.zshrc
     fi
-    # chsh -s $(which zsh)
 }
 
-
-function if_command() {
+function ensure_command_installed() {
     local CMD_NAME="$1"
     local INSTALL_CMD="$2"
-    if ! command -v $1 &> /dev/null; then
+    if ! command -v "$CMD_NAME" &> /dev/null; then
         msg "安装 ${CMD_NAME}"
-        eval ${INSTALL_CMD}
+        eval "$INSTALL_CMD"  # 直接执行命令，假设它是安全的
         if_success $? "${CMD_NAME} 安装失败"
     else
         msg "${CMD_NAME} 已安装"
@@ -87,27 +82,22 @@ function handle_ubuntu_init() {
     msg "安装常用工具..."
     $SUDO apt install -y zsh bat autojump ripgrep build-essential unzip python3-pip
     if_success $? "工具安装失败"
-    if_command mcfly "$MCFLY_EXEC"
-    if_command fzf "$FZF_EXEC"
-    if_command procs "$PROCS_EXEC"
-    if_command tldr "$TLDR_EXEC"
+    ensure_command_installed mcfly "$MCFLY_EXEC"
+    ensure_command_installed fzf "$FZF_EXEC"
+    ensure_command_installed procs "$PROCS_EXEC"
+    ensure_command_installed tldr "$TLDR_EXEC"
     config
     msg "系统初始化完成！"
-    
 }
 
-# 针对 CentOS 的安装逻辑
 function handle_centos() {
-    echo "执行针对 CentOS/RHEL 系统的操作"
-    # 在这里编写 CentOS/RHEL 系统的处理逻辑
+    msg "执行针对 CentOS/RHEL 系统的操作"
 }
 
-# 针对未知系统的处理
 function handle_unknown() {
-    echo "未知的操作系统，无法执行特定操作"
+    msg "未知的操作系统，无法执行特定操作"
 }
 
-# 获取系统发行版本的函数
 function main() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -146,5 +136,4 @@ function main() {
     fi
 }
 
-# 调用函数
 main
