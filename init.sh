@@ -2,16 +2,17 @@
 set -e
 
 function if_success() {
-    local Return_Status=$1
-    local Error_Message=$2
-    if [ $Return_Status -ne 0 ]; then
-        echo -e "\\033[\[\\033[1;31m  $Error_Message  \\033[0;39m]\r"
+    local RETURN_STATUS=$1
+    local ERROR_MSG=$2
+    if [ ${RETURN_STATUS} -ne 0 ]; then
+        echo -e "\\033[\[\\033[1;31m  ${ERROR_MSG}  \\033[0;39m]\r"
         exit 1
     fi
 }
 
 function msg() {
-    echo -e "\\033[\[\\033[1;32m  $1  \\033[0;39m]\r"
+    local MSG=$1
+    echo -e "\\033[\[\\033[1;32m  ${MSG}  \\033[0;39m]\r"
     return 0
 }
 
@@ -30,19 +31,18 @@ function config() {
         if_success $? "安装Oh My Zsh失败"
     fi
     msg "将进行~/.zshrc配置..."
-    temp_zshrc=$(mktemp)
-    cp -rf ~/.zshrc  "$temp_zshrc"
+    TEMP_ZSHRC=$(mktemp) && cp -rf ~/.zshrc  "${TEMP_ZSHRC}"
     # 追加或更新配置（仅当它们不存在时）
-    grep -qF  "${MYFLY_ZSH}" "$temp_zshrc" || echo "${MYFLY_ZSH}" >> "$temp_zshrc"
-    grep -qF  "${JUMP_ZSH}" "$temp_zshrc" || echo "${JUMP_ZSH}" >> "$temp_zshrc"
-    grep -qF  "${ALIAS_BAT}" "$temp_zshrc" || echo "${ALIAS_BAT}" >> "$temp_zshrc"
-    grep -qF  "${ALIAS_TLDR}"  "$temp_zshrc" || echo "${ALIAS_TLDR}" >> "$temp_zshrc"
-    grep -qF  "${ALIAS_PROCS}"  "$temp_zshrc" || echo "${ALIAS_PROCS}" >> "$temp_zshrc"
-    grep -qF  "${THEME_BAT}"  "$temp_zshrc" || echo "${THEME_BAT}" >> "$temp_zshrc"
-    grep -qF  "${FZF_OPTS}"  "$temp_zshrc" || echo "${FZF_OPTS}" >> "$temp_zshrc"
+    grep -qF  "${MYFLY_ZSH}" "${TEMP_ZSHRC}" || echo "${MYFLY_ZSH}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${JUMP_ZSH}" "${TEMP_ZSHRC}" || echo "${JUMP_ZSH}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${ALIAS_BAT}" "${TEMP_ZSHRC}" || echo "${ALIAS_BAT}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${ALIAS_TLDR}"  "${TEMP_ZSHRC}" || echo "${ALIAS_TLDR}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${ALIAS_PROCS}"  "${TEMP_ZSHRC}" || echo "${ALIAS_PROCS}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${THEME_BAT}"  "${TEMP_ZSHRC}" || echo "${THEME_BAT}" >> "${TEMP_ZSHRC}"
+    grep -qF  "${FZF_OPTS}"  "${TEMP_ZSHRC}" || echo "${FZF_OPTS}" >> "${TEMP_ZSHRC}"
     # 如果.zshrc的内容发生了变化，则替换它
-    if ! cmp -s ~/.zshrc "$temp_zshrc"; then
-        mv "$temp_zshrc" ~/.zshrc
+    if ! cmp -s ~/.zshrc "${TEMP_ZSHRC}"; then
+        mv "${TEMP_ZSHRC}" ~/.zshrc
         zsh && source ~/.zshrc
     fi
 }
@@ -50,9 +50,9 @@ function config() {
 function ensure_command_installed() {
     local CMD_NAME="$1"
     local INSTALL_CMD="$2"
-    if ! command -v "$CMD_NAME" &> /dev/null; then
+    if ! command -v "${CMD_NAME}" &> /dev/null; then
         msg "安装 ${CMD_NAME}"
-        eval "$INSTALL_CMD"  # 直接执行命令，假设它是安全的
+        eval "${INSTALL_CMD}"  # 直接执行命令，假设它是安全的
         if_success $? "${CMD_NAME} 安装失败"
     else
         msg "${CMD_NAME} 已安装"
@@ -82,10 +82,10 @@ function handle_ubuntu_init() {
     msg "安装常用工具..."
     $SUDO apt install -y zsh bat autojump ripgrep build-essential unzip python3-pip
     if_success $? "工具安装失败"
-    ensure_command_installed mcfly "$MCFLY_EXEC"
-    ensure_command_installed fzf "$FZF_EXEC"
-    ensure_command_installed procs "$PROCS_EXEC"
-    ensure_command_installed tldr "$TLDR_EXEC"
+    ensure_command_installed mcfly "${MCFLY_EXEC}"
+    ensure_command_installed fzf "${FZF_EXEC}"
+    ensure_command_installed procs "{$PROCS_EXEC}"
+    ensure_command_installed tldr "${TLDR_EXEC}"
     config
     msg "系统初始化完成！"
 }
@@ -101,8 +101,8 @@ function handle_unknown() {
 function main() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
-        msg "$NAME $VERSION"
-        case "$NAME" in
+        msg "${NAME} ${VERSION}"
+        case "${NAME}" in
             "Ubuntu" | "Debian GNU/Linux")
                 handle_ubuntu_init
             ;;
@@ -115,8 +115,8 @@ function main() {
         esac
         elif [ -f /etc/lsb-release ]; then
         . /etc/lsb-release
-        msg "$DISTRIB_ID $DISTRIB_RELEASE"
-        case "$DISTRIB_ID" in
+        msg "${DISTRIB_ID} ${DISTRIB_RELEASE}"
+        case "${DISTRIB_ID}" in
             "Ubuntu" | "Debian")
                 handle_ubuntu_init
             ;;
