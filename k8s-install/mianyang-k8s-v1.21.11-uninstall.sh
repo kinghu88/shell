@@ -305,7 +305,7 @@ show_help() {
     echo -e "${CYAN}Kubernetes 节点卸载脚本 v2${NC}
 
 ${YELLOW}用法:${NC}
-  $0 [选项]
+  k8s-uninstall.sh [选项]
 
 ${YELLOW}选项:${NC}
   -h, --help     显示此帮助信息
@@ -331,10 +331,10 @@ ${YELLOW}日志:${NC}
   卸载日志保存在: ${LOG_DIR}/
 
 ${YELLOW}示例:${NC}
-  sudo $0                   # 普通卸载（保留数据）
-  sudo $0 --force           # 强制卸载（无确认）
-  sudo $0 --purge           # 完全清理（含数据）
-  sudo $0 --purge --debug   # 完全清理 + 调试模式"
+  sudo k8s-uninstall.sh                   # 普通卸载（保留数据）
+  sudo k8s-uninstall.sh --force           # 强制卸载（无确认）
+  sudo k8s-uninstall.sh --purge           # 完全清理（含数据）
+  sudo k8s-uninstall.sh --purge --debug   # 完全清理 + 调试模式"
 }
 
 # ==================== 主函数 ====================

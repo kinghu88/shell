@@ -405,7 +405,7 @@ show_help() {
     echo -e "${CYAN}Kubernetes 节点安装初始化脚本 v2${NC}
 
 ${YELLOW}用法:${NC}
-  $0 [选项]
+  k8s-install.sh [选项]
 
 ${YELLOW}选项:${NC}
   -h, --help     显示此帮助信息
@@ -430,10 +430,10 @@ ${YELLOW}日志:${NC}
   安装日志保存在: ${LOG_DIR}/
 
 ${YELLOW}示例:${NC}
-  sudo $0                  # 执行安装（幂等）
-  sudo $0 --force          # 强制执行（重新安装）
-  sudo $0 --debug          # 调试模式
-  sudo $0 --help           # 显示帮助"
+  sudo k8s-install.sh                  # 执行安装（幂等）
+  sudo k8s-install.sh --force          # 强制执行（重新安装）
+  sudo k8s-install.sh --debug          # 调试模式
+  sudo k8s-install.sh --help           # 显示帮助"
 }
 
 # ==================== 主函数 ====================
