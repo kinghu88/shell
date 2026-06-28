@@ -233,7 +233,18 @@ install_docker() {
         print_separator
         return
     fi
-
+    log_info "配置 Docker..."
+    mkdir -p /etc/docker
+    cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "registry-mirrors": ["${REGISTRY_MIRROR}"]
+}
+EOF
     log_info "下载并安装 Docker ${DOCKER_VERSION}..."
 
     local install_urls=(
@@ -271,19 +282,6 @@ install_docker() {
         exit 1
     fi
     rm -f "${docker_script}"
-
-    log_info "配置 Docker..."
-    mkdir -p /etc/docker
-    cat > /etc/docker/daemon.json <<EOF
-{
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "registry-mirrors": ["${REGISTRY_MIRROR}"]
-}
-EOF
 
     systemctl daemon-reload
     systemctl enable --now docker >> "${LOG_FILE}" 2>&1
